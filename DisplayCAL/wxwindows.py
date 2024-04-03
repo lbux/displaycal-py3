@@ -75,7 +75,7 @@ from DisplayCAL.wxaddons import (
     BetterTimer,
     EVT_BETTERTIMER,
 )
-from DisplayCAL.wexpect import split_command_line
+from wexpect import split_command_line
 from DisplayCAL.wxfixes import (
     GenBitmapButton,
     GenButton,

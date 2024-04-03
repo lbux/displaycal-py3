@@ -1405,7 +1405,7 @@ def setup():
                     print("Signing", dist_path)
 
                     if passphrase_path.is_file():
-                        from DisplayCAL import wexpect
+                        import wexpect
 
                         with open(passphrase_path) as passphrase_file:
                             passphrase = passphrase_file.read().strip()

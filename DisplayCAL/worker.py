@@ -58,6 +58,7 @@ else:
 # 3rd party
 if sys.platform == "win32":
     from win32com.shell import shell as win32com_shell
+    import wexpect
     import pythoncom
     import win32api
     import win32con
@@ -74,7 +75,6 @@ from DisplayCAL import config
 from DisplayCAL import defaultpaths
 from DisplayCAL import imfile
 from DisplayCAL import localization as lang
-from DisplayCAL import wexpect
 from DisplayCAL.argyll_cgats import (
     add_dispcal_options_to_cal,
     add_options_to_ti3,
@@ -353,9 +353,7 @@ def check_create_dir(path):
         try:
             os.makedirs(path)
         except Exception as exception:
-            return Error(
-                f"{lang.getstr('error.dir_creation', path)}\n\n{exception}"
-            )
+            return Error(f"{lang.getstr('error.dir_creation', path)}\n\n{exception}")
     if not os.path.isdir(path):
         return Error(lang.getstr("error.dir_notdir", path))
     return True
@@ -681,7 +679,7 @@ def create_shaper_curves(
     B_Z = []
     XYZbp = None
     XYZwp = None
-    for (R, G, B) in RGB_XYZ:
+    for R, G, B in RGB_XYZ:
         X, Y, Z = RGB_XYZ[(R, G, B)]
         X, Y, Z = colormath.adapt(X, Y, Z, RGB_XYZ[(100, 100, 100)], cat=cat)
         if 100 > R > 0 and min(X, Y, Z) < 100.0 / 65535:
@@ -1861,7 +1859,9 @@ class Producer(object):
         except Exception as exception:
             if debug:
                 messages = traceback.format_exception(exception)
-                print("[D] Worker raised an unhandled exception: \n" + "\n".join(messages))
+                print(
+                    "[D] Worker raised an unhandled exception: \n" + "\n".join(messages)
+                )
             raise
         if not self.continue_next and self.worker._progress_wnd:
             if hasattr(
@@ -4848,9 +4848,7 @@ END_DATA
                                         clipmask, scale, full, uci, cin = clip[abc]
                                         del clip[abc]
                                         for j, v in enumerate(RGB):
-
                                             if clipmask:
-
                                                 if input_encoding != "T" and scale > 1:
                                                     # We got +ve clipping
 
@@ -4862,7 +4860,6 @@ END_DATA
 
                                                 # Deal with -ve clipping and sync
                                                 if clipmask & (1 << j):
-
                                                     if full[j] == 0.0:
                                                         # Only extrapolate in black direction
                                                         ifull = (
@@ -6608,7 +6605,7 @@ BEGIN_DATA
                     if os.path.exists(path):
                         pythonpath[i] = win32api.GetShortPathName(path)
                 # Write out .wait.py file
-                scriptfilename =  f"{waitfilename}.py"
+                scriptfilename = f"{waitfilename}.py"
                 with open(scriptfilename, "w") as scriptfile:
                     scriptfile.write(pythonscript)
                 scriptfilename = win32api.GetShortPathName(scriptfilename)
@@ -6631,7 +6628,7 @@ BEGIN_DATA
                 with open(waitfilename, "w") as waitfile:
                     waitfile.write(f"#!/usr/bin/env python3\n{pythonscript}")
                 os.chmod(waitfilename, 0o755)
-                args[index] += '%s ./%s' % (
+                args[index] += "%s ./%s" % (
                     strtr(safe_str(python), {'"': r"\"", "$": r"\$"}),
                     os.path.basename(waitfilename),
                 )
@@ -7185,7 +7182,6 @@ BEGIN_DATA
                                 break
                             continue
                         elif self.measure_cmd:
-
                             if [
                                 keyhit_str
                                 for keyhit_str in keyhit_strs
@@ -7539,7 +7535,6 @@ BEGIN_DATA
         wx.CallAfter(consumer, result, *args, **kwargs)
 
     def generate_A2B0(self, profile, clutres=None, logfile=None):
-
         # Lab cLUT is currently not implemented and should NOT be used!
         if profile.connectionColorSpace != b"XYZ":
             raise Error(
@@ -11813,7 +11808,6 @@ usage: spotread [-options] [logfile]
         # XXX: Need to implement proper 3D interpolation
 
         if clutres > iclutres:
-
             # Lookup input RGB to interpolated XYZ
             RGB_in = []
             step = 100 / (clutres - 1.0)
@@ -12063,7 +12057,7 @@ usage: spotread [-options] [logfile]
 
                     if not bpc:
                         XYZbp = None
-                        for (R, G, B) in RGB_XYZ:
+                        for R, G, B in RGB_XYZ:
                             X, Y, Z = RGB_XYZ[(R, G, B)]
                             if R == G == B == 0:
                                 XYZbp = [v / 100 for v in (X, Y, Z)]
@@ -13141,12 +13135,12 @@ usage: spotread [-options] [logfile]
         if not os.path.exists(f"{in_out_file}.ti3"):
             return (
                 Error(
-                    lang.getstr("error.measurement.file_missing",  f"{in_out_file}.ti3")
+                    lang.getstr("error.measurement.file_missing", f"{in_out_file}.ti3")
                 ),
                 None,
             )
         if not os.path.isfile(f"{in_out_file}.ti3"):
-            return Error(lang.getstr("file_notfile",  f"{in_out_file}.ti3")), None
+            return Error(lang.getstr("file_notfile", f"{in_out_file}.ti3")), None
 
         cmd = get_argyll_util("colprof")
         args = ["-v", f"-q{getcfg('profile.quality')}", f"-a{getcfg('profile.type')}"]
@@ -13962,7 +13956,7 @@ usage: spotread [-options] [logfile]
                         # avoid profile install issues
                         profile_tmp_path = os.path.join(
                             tmp_dir,
-                            safe_asciize(profile_name).decode("utf-8", "ignore")
+                            safe_asciize(profile_name).decode("utf-8", "ignore"),
                         )
                     else:
                         profile_tmp_path = os.path.join(tmp_dir, profile_name)
@@ -15032,7 +15026,7 @@ usage: spotread [-options] [logfile]
                     src = os.path.splitext(os.path.basename(src))[0]
                 else:
                     if mods:
-                        src += " " + "".join([f"[{mod.upper()}]"  for mod in mods])
+                        src += " " + "".join([f"[{mod.upper()}]" for mod in mods])
                     src_path = get_data_path(f"ref/{src}.gam")
                 if not src_path:
                     continue
@@ -15083,6 +15077,7 @@ usage: spotread [-options] [logfile]
                     filename = tmpfilename
 
                 try:
+
                     def tweak_vrml(vrml):
                         # Set viewpoint further away
                         vrml = re.sub(
@@ -15105,7 +15100,9 @@ usage: spotread [-options] [logfile]
                             )
                         # Add range to axes
                         vrml = re.sub(
-                            rb'(string\s*\[")(\+?)(L\*)("\])', rb'\1\3", b"\2\0$\4', vrml
+                            rb'(string\s*\[")(\+?)(L\*)("\])',
+                            rb'\1\3", b"\2\0$\4',
+                            vrml,
                         )
                         vrml = re.sub(
                             rb'(string\s*\[")([+\-]?)(a\*)("\])',
@@ -15996,9 +15993,13 @@ BEGIN_DATA
                 ofile.write(b"\n")
                 ofile.write(b"NUMBER_OF_FIELDS ")
                 if include_sample_name:
-                    ofile.write(bytes(str(2 + len(icolor) + len(color_rep)), "utf-8") + b"\n")
+                    ofile.write(
+                        bytes(str(2 + len(icolor) + len(color_rep)), "utf-8") + b"\n"
+                    )
                 else:
-                    ofile.write(bytes(str(1 + len(icolor) + len(color_rep)), "utf-8") + b"\n")
+                    ofile.write(
+                        bytes(str(1 + len(icolor) + len(color_rep)), "utf-8") + b"\n"
+                    )
                 ofile.write(b"BEGIN_DATA_FORMAT\n")
                 ofile.write(b"SAMPLE_ID ")
                 if include_sample_name:
@@ -16007,7 +16008,9 @@ BEGIN_DATA
                     ofile.write(olabel + b" " + ilabel + b"\n")
                 ofile.write(b"END_DATA_FORMAT\n")
                 ofile.write(b"\n")
-                ofile.write(b"NUMBER_OF_SETS " + bytes(str(len(odata)), "utf-8") + b"\n")
+                ofile.write(
+                    b"NUMBER_OF_SETS " + bytes(str(len(odata)), "utf-8") + b"\n"
+                )
                 ofile.write(b"BEGIN_DATA\n")
             if pcs == "x":
                 # Need to scale XYZ coming from xicclu, Lab is already scaled
@@ -16217,8 +16220,10 @@ BEGIN_DATA
                 # add required fields to DATA_FORMAT if not yet present
                 if (
                     not bytes(required[0], "utf-8") in list(ti3v.DATA_FORMAT.values())
-                    and not bytes(required[1], "utf-8") in list(ti3v.DATA_FORMAT.values())
-                    and not bytes(required[2], "utf-8") in list(ti3v.DATA_FORMAT.values())
+                    and not bytes(required[1], "utf-8")
+                    in list(ti3v.DATA_FORMAT.values())
+                    and not bytes(required[2], "utf-8")
+                    in list(ti3v.DATA_FORMAT.values())
                 ):
                     ti3v.DATA_FORMAT.add_data(required)
                 ti1out.write(b'KEYWORD "COLOR_REP"\n')
@@ -16261,7 +16266,11 @@ BEGIN_DATA
                 )
                 ti1out.write(cie_.encode("utf-8"))
             else:
-                cie_ = b"%s %s %s\n" % (bytes(str(i + 1), "utf-8"), b" ".join(device), b" ".join(cie))
+                cie_ = b"%s %s %s\n" % (
+                    bytes(str(i + 1), "utf-8"),
+                    b" ".join(device),
+                    b" ".join(cie),
+                )
                 ti1out.write(cie_)
             if i > len(wp) - 1:  # don't include whitepoint patches in ti3
                 # set device values in ti3
@@ -16269,7 +16278,9 @@ BEGIN_DATA
                     # Assuming 0..100, 4 decimal digits is
                     # enough for roughly 19 bits integer
                     # device values
-                    ti3v.DATA[i - len(wp)][v.decode("utf-8")] = round(float(device[n]), 4)
+                    ti3v.DATA[i - len(wp)][v.decode("utf-8")] = round(
+                        float(device[n]), 4
+                    )
                 # set PCS values in ti3
                 for n, v in enumerate(cie):
                     ti3v.DATA[i - len(wp)][required[n]] = float(v)
@@ -16385,7 +16396,7 @@ BEGIN_DATA
             uri = response.geturl()
             filename = Path(Path(uri).name)
             actualhash = sha256()
-            if hashes and False:  # skip this for now
+            if hashes and False:  # skip this for now
                 # Read max. 64 KB hashes
                 hashesdata = hashes.read(1024 * 64)
                 hashes.close()
@@ -16400,7 +16411,9 @@ BEGIN_DATA
                             lang.getstr("file.hash.malformed", filename), orig_uri
                         )
                     else:
-                        hashesdict[Path(name_hash[1].decode().lstrip("*"))] = name_hash[0]
+                        hashesdict[Path(name_hash[1].decode().lstrip("*"))] = name_hash[
+                            0
+                        ]
                     expectedhash_hex = hashesdict[filename]
                 if not expectedhash_hex:
                     response.close()
@@ -16438,7 +16451,6 @@ BEGIN_DATA
         if not os.path.isfile(download_path) or (
             total_size is not None and os.stat(download_path).st_size != total_size
         ):
-
             if not os.path.isdir(download_dir):
                 os.makedirs(download_dir)
 
@@ -17088,7 +17100,6 @@ BEGIN_DATA
             self.buffer = self.buffer[1:]
 
     def _write(self, txt):
-
         if isinstance(txt, bytes):
             txt = txt.decode()
 
@@ -17128,22 +17139,18 @@ BEGIN_DATA
             and hasattr(self.patterngenerator, "conn")
         )
         if use_patterngenerator or self.use_madnet_tpg or self._use_patternwindow:
-            # sometimes the data is not fully received
+            # sometimes the data is not fully received
             if self.partial_data != "":
-                # combine the partial data with the currently received one
+                # combine the partial data with the currently received one
                 self.log(f"Combining previous data of: {self.partial_data}")
                 self.log(f"with                      : {txt}")
                 txt = self.partial_data + txt
                 self.log(f"to                        : {txt}")
 
-            rgb = re.search(
-                r"Current RGB(?:\s+\d+){3}((?:\s+\d+(?:\.\d+)){3})", txt
-            )
+            rgb = re.search(r"Current RGB(?:\s+\d+){3}((?:\s+\d+(?:\.\d+)){3})", txt)
             # Check if the data is partial
             if "Current RGB" in txt and rgb is None:
-                self.log(
-                    f"Data is not fully received, storing partial data: {txt}"
-                )
+                self.log(f"Data is not fully received, storing partial data: {txt}")
                 self.partial_data = txt
 
             if rgb:
