@@ -112,7 +112,6 @@ if sys.platform == "win32":
     from DisplayCAL import util_win
 elif sys.platform == "darwin":
     from DisplayCAL import util_mac
-from DisplayCAL import wexpect
 from DisplayCAL.argyll_cgats import (
     cal_to_fake_profile,
     can_update_cal,

@@ -7076,6 +7076,8 @@ BEGIN_DATA
                         if sys.platform == "win32" and sys.getwindowsversion() < (5, 1):
                             raise Error(lang.getstr("windows.version.unsupported"))
                         try:
+                            # kwargs contains cwd and we need to convert only it to string
+                            kwargs["cwd"] = safe_str(kwargs["cwd"], fs_enc)
                             self.subprocess = wexpect.spawn(
                                 cmdline[0], cmdline[1:], **kwargs
                             )
